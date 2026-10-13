@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Native launch screen: a flat fill in the app's dark background colour so
+     there is no white flash before Flutter's (dark-only) UI appears. No
+     image/icon layer — on Android 12+ the OS draws the app icon on top of
+     this background on its own and that can't be disabled. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/launch_background" />
+</layer-list>

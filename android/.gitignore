@@ -1,0 +1,21 @@
+gradle-wrapper.jar
+/.gradle
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+
+# Remember to never publicly share your keystore.
+# See https://flutter.dev/to/reference-keystore
+key.properties
+**/*.keystore
+**/*.jks
+
+# Release upload keystore (never commit)
+app/keystore/
+
+# Firebase config — not a hard secret (it ships in every build), but keep
+# it out of version control so a fork/clone doesn't inherit our project.
+app/google-services.json

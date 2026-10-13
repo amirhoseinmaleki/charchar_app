@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug-only network policy. Same HTTPS-only default as release, but with a
+  cleartext allowance for the loopback / emulator-host addresses a local
+  dev server runs on, so `flutter run` against http://localhost:4000 (with
+  `adb reverse`) or http://10.0.2.2:4000 keeps working. This file is NOT
+  packaged into the release APK.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">10.0.3.2</domain>
+        <!-- Self-hosted dev backend (http, no TLS yet). -->
+        <domain includeSubdomains="true">185.239.2.7</domain>
+    </domain-config>
+</network-security-config>

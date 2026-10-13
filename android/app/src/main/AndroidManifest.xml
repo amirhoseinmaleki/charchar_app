@@ -1,0 +1,121 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 13+ (API 33): FCM / local notifications need a runtime
+         permission. firebase_messaging requests it at runtime (see
+         PushService.init). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- Advertising ID — required by tapsell_mediation / AdMob for apps
+         targeting Android 13+. Without it Play Store rejects the ad SDK's
+         ID access at runtime and fill rate drops. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <!-- In-app billing permissions are declared PER FLAVOR, not here:
+           src/bazaar/AndroidManifest.xml — keeps Cafe Bazaar's
+             PAY_THROUGH_BAZAAR (Poolakey's own AAR manifest declares it too).
+           src/myket/AndroidManifest.xml  — strips PAY_THROUGH_BAZAAR with
+             tools:node="remove", because Myket rejects an upload whose
+             manifest carries a rival store's permission.
+         Myket's own permission comes from the ${marketPermission} placeholder
+         in the myket_iap library manifest (set in build.gradle.kts). -->
+
+
+    <application
+        android:label="@string/app_name"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="false"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <!-- Impeller (the OpenGLES renderer) fails to link its shader
+                 pipeline on some emulator GPU drivers ("Could not link
+                 pipeline program" → surface stays 0×0 → the app is stuck on
+                 the native splash). Force the Skia backend, which is stable
+                 everywhere. Remove this once every target device renders
+                 Impeller cleanly. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.EnableImpeller"
+              android:value="false" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+
+        <!-- FCM: the notification channel a backgrounded "notification"
+             message lands in. Must match PushService._channel.id
+             ('high_importance_channel'), which PushService creates at
+             startup so the channel actually exists. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="high_importance_channel" />
+
+        <!-- flutter_local_notifications: without these receivers a
+             zonedSchedule() alarm fires into nothing — scheduled local
+             notifications never appear, and are lost on reboot. -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
+        <!-- tapsell_mediation's own manifest declares
+             <meta-data android:name="ir.tapsell.mediation.APPLICATION_KEY"
+                        android:value="${TapsellMediationAppKey}"/>
+             so all we supply is the `TapsellMediationAppKey` manifest
+             PLACEHOLDER, from build.gradle.kts (manifestPlaceholders,
+             overridable with -PtapsellAppKey=xxxx). The SDK self-initializes
+             from it at process start — there is no Dart init call. -->
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Android 11+ package visibility for the Cafe Bazaar billing
+             flow (flutter_poolakey). Myket's equivalent <queries> entries
+             come from the myket_iap library manifest. -->
+        <package android:name="com.farsitel.bazaar" />
+    </queries>
+</manifest>

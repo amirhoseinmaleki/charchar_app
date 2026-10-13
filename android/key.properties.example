@@ -1,0 +1,13 @@
+# Copy to android/key.properties (gitignored) and fill in with your real
+# upload keystore before building a release you intend to distribute.
+#
+# Generate a keystore:
+#   keytool -genkeypair -v -keystore android/app/keystore/upload.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# storeFile is resolved relative to android/app/, so a keystore at
+# android/app/keystore/upload.jks is referenced as "keystore/upload.jks".
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=upload
+storeFile=keystore/upload.jks

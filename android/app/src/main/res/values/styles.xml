@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme applied to the Android Window while the process is starting.
+         The app is dark-only, so use a dark launch window in both the
+         light- and dark-mode resource sets to avoid a white flash. -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <!-- Removed automatically once the Flutter engine draws its first frame. -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <!-- Android 12+ system splash: match the icon backdrop to the app bg.
+             The centered icon itself is drawn by the OS and can't be removed. -->
+        <item name="android:windowSplashScreenBackground">@color/launch_background</item>
+        <!-- Android 15 (API 35) enforces edge-to-edge regardless of the
+             MainActivity.onCreate opt-out unless the theme opts out too.
+             Needed so natively-pinned views (Tapsell's banner ad) stay
+             above the system navigation bar instead of behind it. -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+    <!-- Theme applied as soon as the process has started; also the Window
+         background behind the Flutter UI while it runs. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+</resources>

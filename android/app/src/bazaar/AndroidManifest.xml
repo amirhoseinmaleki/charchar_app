@@ -1,0 +1,57 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Cafe Bazaar in-app billing. Poolakey's native AAR declares this
+         permission itself, so this entry is mostly documentation — but
+         keeping it explicit means the bazaar flavor's requirement is visible
+         here rather than only inside a dependency. The myket flavor removes
+         it (see src/myket/AndroidManifest.xml). -->
+    <uses-permission android:name="com.farsitel.bazaar.permission.PAY_THROUGH_BAZAAR" />
+
+    <!-- Cafe Bazaar rejects an upload whose manifest requests a rival
+         store's billing permission ("این دسترسی غیرمجاز است" listing
+         ir.mservices.market.BILLING). That permission — plus a package
+         query and bind-service intent for Myket's market app — comes from
+         myket-billing-client's own native AAR manifest (not the myket_iap
+         Dart plugin, whose manifest is empty), merged into EVERY flavor
+         because both IAP SDKs are always compiled in. Simply omitting it
+         from the app manifest is not enough; the merger pulls it back in
+         from the library. tools:node="remove" strips it from the merged
+         manifest of this flavor only.
+
+         The myket flavor is unaffected — it needs this permission for real.
+         Myket_iap code stays in the bazaar APK but is never initialised —
+         StoreConfig.isBazaar routes everything to BazaarIapStore. -->
+    <uses-permission
+        android:name="ir.mservices.market.BILLING"
+        tools:node="remove" />
+
+    <queries>
+        <package android:name="ir.mservices.market" tools:node="remove" />
+        <intent tools:node="remove">
+            <action android:name="ir.mservices.market.InAppBillingService.BIND" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
+
+    <application>
+        <!-- Myket's IABReceiver listens for ir.mservices.market.* broadcasts.
+             Bazaar only flagged the permission, but a receiver advertising a
+             rival store's actions has no purpose in a Bazaar build — drop it
+             so the uploaded manifest is clean. -->
+        <receiver
+            android:name="ir.myket.billingclient.util.IABReceiver"
+            tools:node="remove" />
+        <!-- Myket's two exported billing-UI activities and their market_id /
+             market_bind_address meta-data are equally unused in a Bazaar
+             build — an exported activity with no purpose here is just
+             needless attack surface, so drop all four. -->
+        <activity
+            android:name="ir.myket.billingclient.util.ProxyBillingActivity"
+            tools:node="remove" />
+        <activity
+            android:name="ir.myket.billingclient.util.DialogActivity"
+            tools:node="remove" />
+        <meta-data android:name="market_id" tools:node="remove" />
+        <meta-data android:name="market_bind_address" tools:node="remove" />
+    </application>
+</manifest>

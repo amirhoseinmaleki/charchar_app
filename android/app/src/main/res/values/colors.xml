@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App dark background (AppColors.darkBackground = #14121F). Used as the
+         native launch-window background so there's no white flash before the
+         Flutter UI (which is dark-only) draws its first frame. -->
+    <color name="launch_background">#14121F</color>
+</resources>

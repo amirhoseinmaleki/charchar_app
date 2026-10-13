@@ -1,0 +1,37 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Myket rejects an upload whose manifest requests a rival store's
+         permission ("فایل APK شامل دسترسی‌های غیرمجاز است" listing
+         com.farsitel.bazaar.permission.PAY_THROUGH_BAZAAR).
+
+         Both IAP SDKs are compiled into every flavor, and Poolakey's own
+         native AAR manifest declares PAY_THROUGH_BAZAAR — so simply omitting
+         it from the app manifest is not enough; the merger pulls it back in
+         from the library. tools:node="remove" strips it from the merged
+         manifest of this flavor only.
+
+         The bazaar flavor is unaffected (see src/bazaar/AndroidManifest.xml).
+         Poolakey code stays in the myket APK but is never initialised —
+         StoreConfig.isMyket routes everything to MyketIapStore. -->
+    <uses-permission
+        android:name="com.farsitel.bazaar.permission.PAY_THROUGH_BAZAAR"
+        tools:node="remove" />
+
+    <!-- Same reasoning for Bazaar's package-visibility query: harmless at
+         runtime, but it keeps the Bazaar package name out of the uploaded
+         manifest. -->
+    <queries>
+        <package android:name="com.farsitel.bazaar" tools:node="remove" />
+    </queries>
+
+    <application>
+        <!-- Poolakey's BillingReceiver listens for com.farsitel.bazaar.*
+             broadcasts. Myket only flagged the permission, but a receiver
+             advertising a rival store's actions has no purpose in a Myket
+             build — drop it so the uploaded manifest is clean. -->
+        <receiver
+            android:name="ir.cafebazaar.poolakey.receiver.BillingReceiver"
+            tools:node="remove" />
+    </application>
+</manifest>
